@@ -45,6 +45,7 @@ func (self *AccountService) CreateDuobbAccount(r *http.Request, req *duobb_proto
 		return err
 	}
 	rsp.Code = duobb_proto.DUOBB_RSP_SUCCESS
+	rsp.Data = account.ID
 
 	return nil
 }
