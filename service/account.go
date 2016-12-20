@@ -11,6 +11,7 @@ import (
 type AccountService struct{}
 
 func (self *AccountService) LoginDuobbAccount(r *http.Request, req *duobb_proto.DuobbLogin, rsp *duobb_proto.Response) error {
+	logrus.Debugf("LoginDuobbAccount req: %v", req)
 	account := &models.DuobbAccount{
 		UserName: req.User,
 	}
@@ -29,6 +30,7 @@ func (self *AccountService) LoginDuobbAccount(r *http.Request, req *duobb_proto.
 }
 
 func (self *AccountService) CreateDuobbAccount(r *http.Request, req *duobb_proto.CreateDuobbAccountReq, rsp *duobb_proto.Response) error {
+	logrus.Debugf("CreateDuobbAccount req: %v", req)
 	account := &models.DuobbAccount{
 		UserName: req.User,
 		Password: req.Password,
@@ -48,6 +50,7 @@ func (self *AccountService) CreateDuobbAccount(r *http.Request, req *duobb_proto
 }
 
 func (self *AccountService) UpdateDuobbAccountPassword(r *http.Request, req *duobb_proto.UpdateDuobbAccountPasswordReq, rsp *duobb_proto.Response) error {
+	logrus.Debugf("UpdateDuobbAccountPassword req: %v", req)
 	account := &models.DuobbAccount{
 		UserName: req.User,
 		Password: req.Password,
@@ -65,6 +68,7 @@ func (self *AccountService) UpdateDuobbAccountPassword(r *http.Request, req *duo
 }
 
 func (self *AccountService) UpdateDuobbAccountPhone(r *http.Request, req *duobb_proto.UpdateDuobbAccountPhoneReq, rsp *duobb_proto.Response) error {
+	logrus.Debugf("UpdateDuobbAccountPhone req: %v", req)
 	account := &models.DuobbAccount{
 		UserName: req.User,
 		Phone:    req.Phone,
@@ -82,6 +86,7 @@ func (self *AccountService) UpdateDuobbAccountPhone(r *http.Request, req *duobb_
 }
 
 func (self *AccountService) UpdateDuobbAccountPicUrl(r *http.Request, req *duobb_proto.UpdateDuobbAccountPicUrlReq, rsp *duobb_proto.Response) error {
+	logrus.Debugf("UpdateDuobbAccountPicUrl req: %v", req)
 	account := &models.DuobbAccount{
 		UserName: req.User,
 		PicUrl:   req.PicUrl,
@@ -99,6 +104,7 @@ func (self *AccountService) UpdateDuobbAccountPicUrl(r *http.Request, req *duobb
 }
 
 func (self *AccountService) GetDuobbAccount(r *http.Request, req *duobb_proto.GetDuobbAccountReq, rsp *duobb_proto.Response) error {
+	logrus.Debugf("GetDuobbAccount req: %v", req)
 	account := &models.DuobbAccount{
 		UserName: req.User,
 	}
