@@ -108,7 +108,7 @@ func UpdateDuobbAccountPicUrl(info *DuobbAccount) error {
 }
 
 func UpdateDuobbAccountLevel(info *DuobbAccount) error {
-	if info.UserName == "" || info.Password == "" {
+	if info.UserName == "" {
 		return UPDATE_ACCOUNT_ERROR_ARGV
 	}
 	now := time.Now().Unix()

@@ -31,6 +31,24 @@ func (self *SpPlanService) CreateSpPlan(r *http.Request, req *duobb_proto.Create
 	return nil
 }
 
+func (self *SpPlanService) DeleteSpPlan(r *http.Request, req *duobb_proto.DeleteSpPlanReq, rsp *duobb_proto.Response) error {
+	logrus.Debugf("CreateSpPlan req: %v", req)
+	plan := &models.SpPlan{
+		Id:         req.PlanId,
+		CreateUser: req.User,
+	}
+	err := models.DeleteSpPlan(plan)
+	if err != nil {
+		logrus.Errorf("delete duobb sp plan error: %v", err)
+		rsp.Code = duobb_proto.DUOBB_DB_ERROR
+		rsp.Msg = duobb_proto.MSG_DUOBB_DB_ERROR
+		return err
+	}
+	rsp.Code = duobb_proto.DUOBB_RSP_SUCCESS
+	
+	return nil
+}
+
 func (self *SpPlanService) GetSpPlanListFromUser(r *http.Request, req *duobb_proto.GetSpPlanListFromUserReq, rsp *duobb_proto.Response) error {
 	logrus.Debugf("GetSpPlanListFromUser req: %v", req)
 	list, err := models.GetSpPlanListFromUser(req.User, req.Offset, req.Num)
@@ -48,7 +66,7 @@ func (self *SpPlanService) GetSpPlanListFromUser(r *http.Request, req *duobb_pro
 
 func (self *SpPlanService) GetSpPlanListPublic(r *http.Request, req *duobb_proto.GetSpPlanListPublicReq, rsp *duobb_proto.Response) error {
 	logrus.Debugf("GetSpPlanListPublic req: %v", req)
-	list, err := models.GetSpPlanListPublic(req.Offset, req.Num)
+	list, err := models.GetSpPlanListPublic(req.QueryPriceStart, req.QueryPriceEnd, req.QueryCommissionStart, req.QueryCommissionEnd, req.QueryNumStart, req.QueryNumEnd, req.Offset, req.Num)
 	if err != nil {
 		logrus.Errorf("get duobb sp plan list public error: %v", err)
 		rsp.Code = duobb_proto.DUOBB_DB_ERROR

@@ -11,14 +11,14 @@ type SpPlan struct {
 	Id            int64   `xorm:"pk autoincr"`
 	Name          string  `xorm:"not null default '' varchar(128)"`
 	CreateUser    string  `xorm:"not null default '' varchar(128) index"`
-	Password      string  `xorm:"not null default '' varchar(64) index"`
-	SourceFromId  int64   `xorm:"not null default 0 int"`
-	ItemsNum      int64   `xorm:"not null default 0 int"`
-	ItemsAvgPrice float32 `xorm:"not null default 0.00 float(9,2)"`
-	AvgCommission float32 `xorm:"not null default 0.00 float(9,2)"`
+	Password      string  `xorm:"not null default '' varchar(64) index" json:"Password,omitempty"`
+	SourceFromId  int64   `xorm:"not null default 0 int" json:"SourceFromId,omitempty"`
+	ItemsNum      int64   `xorm:"not null default 0 int index"`
+	ItemsAvgPrice float32 `xorm:"not null default 0.00 float(9,2) index"`
+	AvgCommission float32 `xorm:"not null default 0.00 float(9,2) index"`
 	ItemsList     string  `xorm:"not null mediumtext" json:"ItemsList,omitempty"`
 	Remark        string  `xorm:"not null default '' varchar(128)"`
-	CreatedAt     int64   `xorm:"not null default 0 int" json:"CreatedAt,omitempty"`
+	CreatedAt     int64   `xorm:"not null default 0 int index" json:"CreatedAt,omitempty"`
 	UpdatedAt     int64   `xorm:"not null default 0 int" json:"UpdatedAt,omitempty"`
 }
 
@@ -39,6 +39,18 @@ func CreateSpPlan(info *SpPlan) error {
 	return nil
 }
 
+func DeleteSpPlan(info *SpPlan) error {
+	if info.Id == 0 || info.CreateUser == "" {
+		return DELETE_SP_PLAN_ERROR_ARGV
+	}
+	_, err := x.Where("id = ?", info.Id).And("create_user = ?", info.CreateUser).Delete(&SpPlan{})
+	if err != nil {
+		logrus.Errorf("id[%d] sp plan delete error: %v", info.Id, err)
+		return DB_ERROR
+	}
+	return nil
+}
+
 func GetSpPlanListFromUser(user string, offset, num int64) ([]SpPlan, error) {
 	var spPlanList []SpPlan
 	err := x.Cols("id", "name", "create_user", "password", "items_num", "items_avg_price", "avg_commission", "remark", "created_at").Where("create_user = ?", user).Limit(int(num), int(offset)).Find(&spPlanList)
@@ -49,9 +61,42 @@ func GetSpPlanListFromUser(user string, offset, num int64) ([]SpPlan, error) {
 	return spPlanList, nil
 }
 
-func GetSpPlanListPublic(offset, num int64) ([]SpPlan, error) {
+func GetSpPlanListPublic(queryPriceStart, queryPriceEnd, queryCommissionStart, queryCommissionEnd float32, queryNumStart, queryNumEnd, offset, num int64) ([]SpPlan, error) {
+	query := fmt.Sprintf("items_num >= %d", queryNumStart)
+	if queryNumEnd != 0 {
+		query = fmt.Sprintf("%s and items_num <= %d", query, queryNumEnd)
+	}
+	if queryPriceStart != 0.0 {
+		query = fmt.Sprintf("%s and items_avg_price >= %f", query, queryPriceStart)
+	}
+	if queryPriceEnd != 0 {
+		query = fmt.Sprintf("%s and items_avg_price <= %f", query, queryPriceEnd)
+	}
+	if queryCommissionStart != 0 {
+		query = fmt.Sprintf("%s and avg_commission >= %f", query, queryCommissionStart)
+	}
+	if queryCommissionEnd != 0 {
+		query = fmt.Sprintf("%s and avg_commission <= %f", query, queryCommissionEnd)
+	}
+	
+	//results, err := x.Query("select id,name,create_user,items_num,items_avg_price,avg_commission,remark,created_at from sp_plan where password = '' and ?", query)
+	//if err != nil {
+	//	logrus.Errorf("get sp plan list public error: %v", err)
+	//	return nil, err
+	//}
+	//if len(results) == 0 {
+	//	return nil, nil
+	//}
+	//var spPlanList []SpPlan
+	//for _, v := range results {
+	//	plan := SpPlan{
+	//
+	//	}
+	//}
+	//return spPlanList, nil
+	
 	var spPlanList []SpPlan
-	err := x.Cols("id", "name", "create_user", "password", "items_num", "items_avg_price", "avg_commission", "remark", "created_at").Where("password = ''").Limit(int(num), int(offset)).Find(&spPlanList)
+	err := x.Cols("id", "name", "create_user", "items_num", "items_avg_price", "avg_commission", "remark", "created_at").Where("password = ''").And(query).Limit(int(num), int(offset)).Find(&spPlanList)
 	if err != nil {
 		logrus.Errorf("get sp plan list public error: %v", err)
 		return nil, err
