@@ -32,6 +32,19 @@ func GetDuobbAccount(info *DuobbAccount) error {
 	return nil
 }
 
+func GetDuobbAccountFromPhone(info *DuobbAccount) error {
+	has, err := x.Where("phone = ?", info.Phone).Get(info)
+	if err != nil {
+		logrus.Errorf("get duobb account from phone[%s] error: %v", info.Phone, err)
+		return err
+	}
+	if !has {
+		logrus.Errorf("cannot found account from phone[%s]", info.Phone)
+		return fmt.Errorf("cannot found account from phone[%s]", info.Phone)
+	}
+	return nil
+}
+
 func CreateDuobbAccount(info *DuobbAccount) error {
 	if info.UserName == "" || info.Password == "" || info.Phone == "" {
 		return CREATE_ACCOUNT_ERROR_ARGV

@@ -34,6 +34,7 @@ func (self *DuobbHttpServer) Start(waitChan chan error) {
 	self.server.RegisterCodec(json.NewCodec(), "application/json;charset=UTF-8")
 
 	self.server.RegisterService(new(service.AccountService), duobb_proto.AccountService)
+	self.server.RegisterService(new(service.SpPlanService), duobb_proto.SPPlanService)
 
 	r := mux.NewRouter()
 	r.Handle("/rpc", self.server)

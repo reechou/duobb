@@ -17,13 +17,14 @@ func (self *AccountService) LoginDuobbAccount(r *http.Request, req *duobb_proto.
 	}
 	err := models.GetDuobbAccount(account)
 	if err != nil {
-		logrus.Errorf("create duobb account error: %v", err)
+		logrus.Errorf("get account error: %v", err)
 		return err
 	}
 	if account.Password == req.Password {
 		rsp.Code = duobb_proto.DUOBB_RSP_SUCCESS
 	} else {
 		rsp.Code = duobb_proto.DUOBB_MSG_LOGIN_ERROR
+		rsp.Msg = duobb_proto.MSG_DUOBB_LOGIN_ERROR
 	}
 
 	return nil
@@ -119,5 +120,23 @@ func (self *AccountService) GetDuobbAccount(r *http.Request, req *duobb_proto.Ge
 	rsp.Code = duobb_proto.DUOBB_RSP_SUCCESS
 	rsp.Data = account
 
+	return nil
+}
+
+func (self *AccountService) GetDuobbAccountFromPhone(r *http.Request, req *duobb_proto.GetDuobbAccountFromPhoneReq, rsp *duobb_proto.Response) error {
+	logrus.Debugf("GetDuobbAccountFromPhone req: %v", req)
+	account := &models.DuobbAccount{
+		Phone: req.Phone,
+	}
+	err := models.GetDuobbAccountFromPhone(account)
+	if err != nil {
+		logrus.Errorf("get duobb account from phone error: %v", err)
+		rsp.Code = duobb_proto.DUOBB_DB_ERROR
+		rsp.Msg = duobb_proto.MSG_DUOBB_DB_ERROR
+		return err
+	}
+	rsp.Code = duobb_proto.DUOBB_RSP_SUCCESS
+	rsp.Data = account
+	
 	return nil
 }
