@@ -19,6 +19,17 @@ type DuobbAccount struct {
 	UpdatedAt int64  `xorm:"not null default 0 int"`
 }
 
+type DuobbAccountCommission struct {
+	ID                int64   `xorm:"pk autoincr"`
+	UserName          string  `xorm:"not null default '' varchar(128) unique(uni_user_day)"`
+	Day               string  `xorm:"not null default '' varchar(16) unique(uni_user_day) index"`
+	TodaySendItemsNum int64   `xorm:"not null default 0 int"`
+	TodayBuyItemsNum  int64   `xorm:"not null default 0 int"`
+	TodayCommission   float32 `xorm:"not null default 0.00 float(9,2)"`
+	CreatedAt         int64   `xorm:"not null default 0 int"`
+	UpdatedAt         int64   `xorm:"not null default 0 int"`
+}
+
 func GetDuobbAccount(info *DuobbAccount) error {
 	has, err := x.Where("user_name = ?", info.UserName).Get(info)
 	if err != nil {
@@ -120,4 +131,58 @@ func UpdateDuobbAccountLevel(info *DuobbAccount) error {
 	}
 
 	return nil
+}
+
+func CreateDuobbAccountCommission(info *DuobbAccountCommission) error {
+	if info.UserName == "" || info.Day == "" {
+		return CREATE_ACCOUNT_COMMISSION_ERROR_ARGV
+	}
+	now := time.Now().Unix()
+	info.CreatedAt = now
+	info.UpdatedAt = now
+	_, err := x.Insert(info)
+	if err != nil {
+		logrus.Errorf("create duobb account commission error: %v", err)
+		return DB_ERROR
+	}
+	logrus.Infof("create duobb account commission[%v] success.", info)
+
+	return nil
+}
+
+func UpdateDuobbAccountCommission(info *DuobbAccountCommission) (int64, error) {
+	if info.UserName == "" || info.Day == "" {
+		return 0, UPDATE_ACCOUNT_COMMISSION_ERROR_ARGV
+	}
+	now := time.Now().Unix()
+	info.UpdatedAt = now
+	affected, err := x.Cols("today_send_items_num", "today_buy_items_num", "today_commission", "updated_at").Update(info, &DuobbAccountCommission{UserName: info.UserName, Day: info.Day})
+	if err != nil {
+		logrus.Errorf("update duobb account today commission error: %v", err)
+		return 0, DB_ERROR
+	}
+
+	return affected, nil
+}
+
+func GetDuobbAllCommission() (float64, error) {
+	ss := new(DuobbAccountCommission)
+	total, err := x.Where("id > ?", 0).Sum(ss, "today_commission")
+	if err != nil {
+		logrus.Errorf("duobb all commission sum error: %v", err)
+		return 0.0, err
+	}
+
+	return total, nil
+}
+
+func GetDuobbAllCommissionByDay(day string) (float64, error) {
+	ss := new(DuobbAccountCommission)
+	total, err := x.Where("day = ?", day).Sum(ss, "today_commission")
+	if err != nil {
+		logrus.Errorf("duobb day commission sum error: %v", err)
+		return 0.0, err
+	}
+
+	return total, nil
 }

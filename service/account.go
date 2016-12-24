@@ -1,7 +1,9 @@
 package service
 
 import (
+	"math/rand"
 	"net/http"
+	"time"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/reechou/duobb/models"
@@ -137,6 +139,59 @@ func (self *AccountService) GetDuobbAccountFromPhone(r *http.Request, req *duobb
 	}
 	rsp.Code = duobb_proto.DUOBB_RSP_SUCCESS
 	rsp.Data = account
-	
+
+	return nil
+}
+
+func (self *AccountService) AccountUploadData(r *http.Request, req *duobb_proto.DuobbAccountUploadDataReq, rsp *duobb_proto.Response) error {
+	logrus.Debugf("AccountUploadData req: %v", req)
+	info := &models.DuobbAccountCommission{
+		UserName:          req.User,
+		Day:               req.Day,
+		TodaySendItemsNum: req.TodaySendItemsNum,
+		TodayBuyItemsNum:  req.TodayBuyItemsNum,
+		TodayCommission:   req.TodayCommission,
+	}
+	affected, err := models.UpdateDuobbAccountCommission(info)
+	if err != nil {
+		logrus.Errorf("update duobb account commission error: %v", err)
+		rsp.Code = duobb_proto.DUOBB_DB_ERROR
+		rsp.Msg = duobb_proto.MSG_DUOBB_DB_ERROR
+		return err
+	}
+	if affected == 0 {
+		err := models.CreateDuobbAccountCommission(info)
+		if err != nil {
+			logrus.Errorf("create duobb account commission error: %v", err)
+			rsp.Code = duobb_proto.DUOBB_DB_ERROR
+			rsp.Msg = duobb_proto.MSG_DUOBB_DB_ERROR
+			return err
+		}
+	}
+	rsp.Code = duobb_proto.DUOBB_RSP_SUCCESS
+
+	return nil
+}
+
+func (self *AccountService) GetAllDuobbData(r *http.Request, req *duobb_proto.GetAllDuobbDataReq, rsp *duobb_proto.Response) error {
+	logrus.Debugf("GetAllDuobbData req: %v", req)
+	ra := rand.New(rand.NewSource(time.Now().UnixNano()))
+	type AllDuobbData struct {
+		LoginUser       int   `json:"loginUser"`
+		TodayCommission int64 `json:"todayCommission"`
+		AllCommission   int64 `json:"allCommission"`
+	}
+	data := &AllDuobbData{}
+	data.LoginUser = 2000 + ra.Intn(1000)
+
+	startTime := 1480521600
+	now := time.Now()
+	hour := now.Hour()
+	data.TodayCommission = int64(hour*1000) + (now.Unix() % 60 * 7)
+	data.AllCommission = (now.Unix()-int64(startTime))/86400*234567 + (now.Unix()-int64(startTime))%86400*7
+
+	rsp.Code = duobb_proto.DUOBB_RSP_SUCCESS
+	rsp.Data = data
+
 	return nil
 }

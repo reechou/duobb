@@ -3,7 +3,7 @@ package models
 import (
 	"fmt"
 	"time"
-	
+
 	"github.com/Sirupsen/logrus"
 )
 
@@ -35,7 +35,7 @@ func CreateSpPlan(info *SpPlan) error {
 		return DB_ERROR
 	}
 	logrus.Infof("create duobb sp plan[%s] success.", info.Name)
-	
+
 	return nil
 }
 
@@ -78,7 +78,7 @@ func GetSpPlanListPublic(queryPriceStart, queryPriceEnd, queryCommissionStart, q
 	if queryCommissionEnd != 0 {
 		query = fmt.Sprintf("%s and avg_commission <= %f", query, queryCommissionEnd)
 	}
-	
+
 	//results, err := x.Query("select id,name,create_user,items_num,items_avg_price,avg_commission,remark,created_at from sp_plan where password = '' and ?", query)
 	//if err != nil {
 	//	logrus.Errorf("get sp plan list public error: %v", err)
@@ -94,7 +94,7 @@ func GetSpPlanListPublic(queryPriceStart, queryPriceEnd, queryCommissionStart, q
 	//	}
 	//}
 	//return spPlanList, nil
-	
+
 	var spPlanList []SpPlan
 	err := x.Cols("id", "name", "create_user", "items_num", "items_avg_price", "avg_commission", "remark", "created_at").Where("password = ''").And(query).Limit(int(num), int(offset)).Find(&spPlanList)
 	if err != nil {
@@ -138,7 +138,7 @@ func UpdateSpPlanItems(info *SpPlan) error {
 		logrus.Errorf("update duobb sp plan items error: %v", err)
 		return DB_ERROR
 	}
-	
+
 	return nil
 }
 
@@ -150,7 +150,7 @@ func UpdateSpPlanPassword(info *SpPlan) error {
 		logrus.Errorf("update duobb sp plan password error: %v", err)
 		return DB_ERROR
 	}
-	
+
 	return nil
 }
 
@@ -162,7 +162,7 @@ func UpdateSpPlanRemark(info *SpPlan) error {
 		logrus.Errorf("update duobb sp plan remark error: %v", err)
 		return DB_ERROR
 	}
-	
+
 	return nil
 }
 
@@ -174,6 +174,6 @@ func UpdateSpPlanSourceFrom(info *SpPlan) error {
 		logrus.Errorf("update duobb sp plan source from id error: %v", err)
 		return DB_ERROR
 	}
-	
+
 	return nil
 }

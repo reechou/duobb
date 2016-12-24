@@ -45,7 +45,7 @@ func (self *SpPlanService) DeleteSpPlan(r *http.Request, req *duobb_proto.Delete
 		return err
 	}
 	rsp.Code = duobb_proto.DUOBB_RSP_SUCCESS
-	
+
 	return nil
 }
 
@@ -119,7 +119,7 @@ func (self *SpPlanService) GetSpPlanInfoFromPassword(r *http.Request, req *duobb
 }
 
 func (self *SpPlanService) UpdateSpPlanItems(r *http.Request, req *duobb_proto.UpdateSpPlanItemsReq, rsp *duobb_proto.Response) error {
-	logrus.Debugf("UpdateSpPlanItems req: %v", req)
+	logrus.Debugf("UpdateSpPlanItems req planid[%d] itemsnum: %d", req.PlanId, req.ItemsNum)
 	plan := &models.SpPlan{
 		Id:            req.PlanId,
 		CreateUser:    req.User,
