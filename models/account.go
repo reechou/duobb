@@ -22,6 +22,7 @@ type DuobbAccount struct {
 type DuobbAccountCommission struct {
 	ID                int64   `xorm:"pk autoincr"`
 	UserName          string  `xorm:"not null default '' varchar(128) unique(uni_user_day)"`
+	AlimamaName       string  `xorm:"not null default '' varchar(128) unique(uni_user_day)"`
 	Day               string  `xorm:"not null default '' varchar(16) unique(uni_user_day) index"`
 	TodaySendItemsNum int64   `xorm:"not null default 0 int"`
 	TodayBuyItemsNum  int64   `xorm:"not null default 0 int"`
@@ -156,7 +157,7 @@ func UpdateDuobbAccountCommission(info *DuobbAccountCommission) (int64, error) {
 	}
 	now := time.Now().Unix()
 	info.UpdatedAt = now
-	affected, err := x.Cols("today_send_items_num", "today_buy_items_num", "today_commission", "updated_at").Update(info, &DuobbAccountCommission{UserName: info.UserName, Day: info.Day})
+	affected, err := x.Cols("today_send_items_num", "today_buy_items_num", "today_commission", "updated_at").Update(info, &DuobbAccountCommission{UserName: info.UserName, AlimamaName: info.AlimamaName, Day: info.Day})
 	if err != nil {
 		logrus.Errorf("update duobb account today commission error: %v", err)
 		return 0, DB_ERROR

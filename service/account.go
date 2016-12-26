@@ -147,6 +147,7 @@ func (self *AccountService) AccountUploadData(r *http.Request, req *duobb_proto.
 	logrus.Debugf("AccountUploadData req: %v", req)
 	info := &models.DuobbAccountCommission{
 		UserName:          req.User,
+		AlimamaName:       req.AlimamaName,
 		Day:               req.Day,
 		TodaySendItemsNum: req.TodaySendItemsNum,
 		TodayBuyItemsNum:  req.TodayBuyItemsNum,
