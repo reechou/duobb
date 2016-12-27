@@ -55,7 +55,7 @@ func GetSpPlanCountFromUser(user string) (int64, error) {
 	count, err := x.Where("create_user = ?", user).Count(&SpPlan{})
 	if err != nil {
 		logrus.Errorf("get sp plan count error: %v", err)
-		return nil, err
+		return 0, err
 	}
 	return count, nil
 }
