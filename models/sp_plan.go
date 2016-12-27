@@ -51,6 +51,15 @@ func DeleteSpPlan(info *SpPlan) error {
 	return nil
 }
 
+func GetSpPlanCountFromUser(user string) (int64, error) {
+	count, err := x.Where("create_user = ?", user).Count(&SpPlan{})
+	if err != nil {
+		logrus.Errorf("get sp plan count error: %v", err)
+		return nil, err
+	}
+	return count, nil
+}
+
 func GetSpPlanListFromUser(user string, offset, num int64) ([]SpPlan, error) {
 	var spPlanList []SpPlan
 	err := x.Cols("id", "name", "create_user", "password", "items_num", "items_avg_price", "avg_commission", "remark", "created_at").Where("create_user = ?", user).Limit(int(num), int(offset)).Find(&spPlanList)
@@ -79,24 +88,8 @@ func GetSpPlanListPublic(queryPriceStart, queryPriceEnd, queryCommissionStart, q
 		query = fmt.Sprintf("%s and avg_commission <= %f", query, queryCommissionEnd)
 	}
 
-	//results, err := x.Query("select id,name,create_user,items_num,items_avg_price,avg_commission,remark,created_at from sp_plan where password = '' and ?", query)
-	//if err != nil {
-	//	logrus.Errorf("get sp plan list public error: %v", err)
-	//	return nil, err
-	//}
-	//if len(results) == 0 {
-	//	return nil, nil
-	//}
-	//var spPlanList []SpPlan
-	//for _, v := range results {
-	//	plan := SpPlan{
-	//
-	//	}
-	//}
-	//return spPlanList, nil
-
 	var spPlanList []SpPlan
-	err := x.Cols("id", "name", "create_user", "items_num", "items_avg_price", "avg_commission", "remark", "created_at").Where("password = ''").And(query).Limit(int(num), int(offset)).Find(&spPlanList)
+	err := x.Cols("id", "name", "create_user", "items_num", "items_avg_price", "avg_commission", "remark", "created_at").Where("password = ''").And("items_num > 0").And(query).Limit(int(num), int(offset)).Find(&spPlanList)
 	if err != nil {
 		logrus.Errorf("get sp plan list public error: %v", err)
 		return nil, err

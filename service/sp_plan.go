@@ -12,13 +12,25 @@ type SpPlanService struct{}
 
 func (self *SpPlanService) CreateSpPlan(r *http.Request, req *duobb_proto.CreateSpPlanReq, rsp *duobb_proto.Response) error {
 	logrus.Debugf("CreateSpPlan req: %v", req)
+	count, err := models.GetSpPlanCountFromUser(req.User)
+	if err != nil {
+		logrus.Errorf("get duobb sp plan count error: %v", err)
+		rsp.Code = duobb_proto.DUOBB_DB_ERROR
+		rsp.Msg = duobb_proto.MSG_DUOBB_DB_ERROR
+		return err
+	}
+	if count >= SP_PLAN_MAX_COUNT {
+		rsp.Code = duobb_proto.DUOBB_CREATE_PLAN_OVER_LIMIE_ERROR
+		rsp.Msg = duobb_proto.MSG_DUOBB_CREATE_PLAN_OVER_LIMIT
+		return nil
+	}
 	plan := &models.SpPlan{
 		Name:       req.Name,
 		CreateUser: req.User,
 		Password:   req.Password,
 		Remark:     req.Remark,
 	}
-	err := models.CreateSpPlan(plan)
+	err = models.CreateSpPlan(plan)
 	if err != nil {
 		logrus.Errorf("create duobb sp plan error: %v", err)
 		rsp.Code = duobb_proto.DUOBB_DB_ERROR
