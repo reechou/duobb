@@ -130,6 +130,27 @@ func (self *SpPlanService) GetSpPlanInfoFromPassword(r *http.Request, req *duobb
 	return nil
 }
 
+func (self *SpPlanService) UpdateSpPlanInfo(r *http.Request, req *duobb_proto.UpdateSpPlanInfoReq, rsp *duobb_proto.Response) error {
+	logrus.Debugf("UpdateSpPlanInfo req: %v", req)
+	plan := &models.SpPlan{
+		Id:         req.PlanId,
+		CreateUser: req.User,
+		Name:       req.Name,
+		Password:   req.Password,
+		Remark:     req.Remark,
+	}
+	err := models.UpdateSpPlanInfo(plan)
+	if err != nil {
+		logrus.Errorf("update duobb sp plan info error: %v", err)
+		rsp.Code = duobb_proto.DUOBB_DB_ERROR
+		rsp.Msg = duobb_proto.MSG_DUOBB_DB_ERROR
+		return err
+	}
+	rsp.Code = duobb_proto.DUOBB_RSP_SUCCESS
+
+	return nil
+}
+
 func (self *SpPlanService) UpdateSpPlanItems(r *http.Request, req *duobb_proto.UpdateSpPlanItemsReq, rsp *duobb_proto.Response) error {
 	logrus.Debugf("UpdateSpPlanItems req planid[%d] itemsnum: %d", req.PlanId, req.ItemsNum)
 	plan := &models.SpPlan{

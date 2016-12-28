@@ -123,6 +123,18 @@ func GetSpPlanInfoFromPassword(info *SpPlan) error {
 	return nil
 }
 
+func UpdateSpPlanInfo(info *SpPlan) error {
+	now := time.Now().Unix()
+	info.UpdatedAt = now
+	_, err := x.Id(info.Id).Cols("name", "password", "remark", "updated_at").Update(info, &SpPlan{Id: info.Id, CreateUser: info.CreateUser})
+	if err != nil {
+		logrus.Errorf("update duobb sp plan info error: %v", err)
+		return DB_ERROR
+	}
+	
+	return nil
+}
+
 func UpdateSpPlanItems(info *SpPlan) error {
 	now := time.Now().Unix()
 	info.UpdatedAt = now
