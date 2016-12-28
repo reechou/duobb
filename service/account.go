@@ -185,11 +185,11 @@ func (self *AccountService) GetAllDuobbData(r *http.Request, req *duobb_proto.Ge
 	data := &AllDuobbData{}
 	data.LoginUser = 2000 + ra.Intn(1000)
 
-	startTime := 1480521600
+	startTime := 1475251200
 	now := time.Now()
 	hour := now.Hour()
 	data.TodayCommission = int64(hour*1000) + (now.Unix() % 60 * 7)
-	data.AllCommission = (now.Unix()-int64(startTime))/86400*234567 + (now.Unix()-int64(startTime))%86400*7
+	data.AllCommission = (now.Unix()-int64(startTime))/86400*23157 + data.TodayCommission
 
 	rsp.Code = duobb_proto.DUOBB_RSP_SUCCESS
 	rsp.Data = data
