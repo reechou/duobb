@@ -143,6 +143,24 @@ func (self *AccountService) GetDuobbAccountFromPhone(r *http.Request, req *duobb
 	return nil
 }
 
+func (self *AccountService) GetDuobbAccountFromId(r *http.Request, req *duobb_proto.GetDuobbAccountFromIdReq, rsp *duobb_proto.Response) error {
+	logrus.Debugf("GetDuobbAccountFromPhone req: %v", req)
+	account := &models.DuobbAccount{
+		ID: req.Id,
+	}
+	err := models.GetDuobbAccountFromId(account)
+	if err != nil {
+		logrus.Errorf("get duobb account from id error: %v", err)
+		rsp.Code = duobb_proto.DUOBB_DB_ERROR
+		rsp.Msg = duobb_proto.MSG_DUOBB_DB_ERROR
+		return err
+	}
+	rsp.Code = duobb_proto.DUOBB_RSP_SUCCESS
+	rsp.Data = account
+	
+	return nil
+}
+
 func (self *AccountService) AccountUploadData(r *http.Request, req *duobb_proto.DuobbAccountUploadDataReq, rsp *duobb_proto.Response) error {
 	logrus.Debugf("AccountUploadData req: %v", req)
 	info := &models.DuobbAccountCommission{
