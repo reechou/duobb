@@ -31,6 +31,15 @@ type DuobbAccountCommission struct {
 	UpdatedAt         int64   `xorm:"not null default 0 int"`
 }
 
+type DuobbAccountCookie struct {
+	ID          int64  `xorm:"pk autoincr"`
+	UserName    string `xorm:"not null default '' varchar(128) unique(uni_user_alimama)" json:"user"`
+	AlimamaName string `xorm:"not null default '' varchar(128) unique(uni_user_alimama)" json:"alimama"`
+	Cookie      string `xorm:"not null default '' text" json:"cookie"`
+	CreatedAt   int64  `xorm:"not null default 0 int" json:"-"`
+	UpdatedAt   int64  `xorm:"not null default 0 int" json:"-"`
+}
+
 func GetDuobbAccount(info *DuobbAccount) error {
 	has, err := x.Where("user_name = ?", info.UserName).Get(info)
 	if err != nil {
@@ -186,4 +195,49 @@ func GetDuobbAllCommissionByDay(day string) (float64, error) {
 	}
 
 	return total, nil
+}
+
+func CreateDuobbAccountCookie(info *DuobbAccountCookie) error {
+	if info.UserName == "" || info.AlimamaName == "" {
+		return CREATE_ACCOUNT_COOKIE_ERROR_ARGV
+	}
+	now := time.Now().Unix()
+	info.CreatedAt = now
+	info.UpdatedAt = now
+	_, err := x.Insert(info)
+	if err != nil {
+		logrus.Errorf("create duobb account cookie error: %v", err)
+		return DB_ERROR
+	}
+	logrus.Infof("create duobb account[%s-%s] cookie success.", info.UserName, info.AlimamaName)
+	
+	return nil
+}
+
+func UpdateDuobbAccountCookie(info *DuobbAccountCookie) (int64, error) {
+	if info.UserName == "" || info.AlimamaName == "" {
+		return 0, UPDATE_ACCOUNT_COOKIE_ERROR_ARGV
+	}
+	now := time.Now().Unix()
+	info.UpdatedAt = now
+	affected, err := x.Cols("cookie", "updated_at").Update(info, &DuobbAccountCookie{UserName: info.UserName, AlimamaName: info.AlimamaName})
+	if err != nil {
+		logrus.Errorf("update duobb account cookie error: %v", err)
+		return 0, DB_ERROR
+	}
+	
+	return affected, nil
+}
+
+func GetDuobbAccountCookie(info *DuobbAccountCookie) error {
+	has, err := x.Where("user_name = ?", info.UserName).And("alimama_name = ?", info.AlimamaName).Get(info)
+	if err != nil {
+		logrus.Errorf("get duobb account[%s] alimama[%s] cookie error: %v", info.UserName, info.AlimamaName, err)
+		return err
+	}
+	if !has {
+		logrus.Errorf("cannot found account[%s] alimama[%s] cookie", info.UserName, info.AlimamaName)
+		return fmt.Errorf("cannot found account[%s] alimama[%s] cookie", info.UserName, info.AlimamaName)
+	}
+	return nil
 }

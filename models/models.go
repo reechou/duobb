@@ -28,7 +28,7 @@ func InitDB(cfg *config.Config) {
 	x.TZLocation, _ = time.LoadLocation("Asia/Shanghai")
 	x.ShowSQL(true)
 
-	if err = x.Sync2(new(DuobbAccount), new(SpPlan), new(DuobbAccountCommission)); err != nil {
+	if err = x.Sync2(new(DuobbAccount), new(SpPlan), new(DuobbAccountCommission), new(DuobbAccountCookie)); err != nil {
 		logrus.Fatalf("Fail to sync database: %v", err)
 	}
 }

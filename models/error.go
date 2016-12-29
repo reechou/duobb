@@ -12,4 +12,6 @@ var (
 	DELETE_SP_PLAN_ERROR_ARGV            = errors.New("删除选品计划参数错误")
 	CREATE_ACCOUNT_COMMISSION_ERROR_ARGV = errors.New("创建账户每日佣金参数错误")
 	UPDATE_ACCOUNT_COMMISSION_ERROR_ARGV = errors.New("更新账户每日佣金参数错误")
+	CREATE_ACCOUNT_COOKIE_ERROR_ARGV     = errors.New("创建账户alimama cookie参数错误")
+	UPDATE_ACCOUNT_COOKIE_ERROR_ARGV     = errors.New("更新账户alimama cookie参数错误")
 )

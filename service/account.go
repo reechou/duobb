@@ -183,7 +183,7 @@ func (self *AccountService) GetAllDuobbData(r *http.Request, req *duobb_proto.Ge
 		AllCommission   int64 `json:"allCommission"`
 	}
 	data := &AllDuobbData{}
-	data.LoginUser = 2000 + ra.Intn(1000)
+	data.LoginUser = 1975 + ra.Intn(1357)
 
 	startTime := 1475251200
 	now := time.Now()
@@ -194,5 +194,52 @@ func (self *AccountService) GetAllDuobbData(r *http.Request, req *duobb_proto.Ge
 	rsp.Code = duobb_proto.DUOBB_RSP_SUCCESS
 	rsp.Data = data
 
+	return nil
+}
+
+func (self *AccountService) AccountUploadAC(r *http.Request, req *duobb_proto.DuobbAccountUploadAlimamaCookieReq, rsp *duobb_proto.Response) error {
+	logrus.Debugf("AccountUploadAC req: %v", req)
+	info := &models.DuobbAccountCookie{
+		UserName:    req.User,
+		AlimamaName: req.AlimamaName,
+		Cookie:      req.Cookie,
+	}
+	affected, err := models.UpdateDuobbAccountCookie(info)
+	if err != nil {
+		logrus.Errorf("update duobb account cookie error: %v", err)
+		rsp.Code = duobb_proto.DUOBB_DB_ERROR
+		rsp.Msg = duobb_proto.MSG_DUOBB_DB_ERROR
+		return err
+	}
+	if affected == 0 {
+		err := models.CreateDuobbAccountCookie(info)
+		if err != nil {
+			logrus.Errorf("create duobb account cookie error: %v", err)
+			rsp.Code = duobb_proto.DUOBB_DB_ERROR
+			rsp.Msg = duobb_proto.MSG_DUOBB_DB_ERROR
+			return err
+		}
+	}
+	rsp.Code = duobb_proto.DUOBB_RSP_SUCCESS
+	
+	return nil
+}
+
+func (self *AccountService) GetAccountAC(r *http.Request, req *duobb_proto.DuobbAccountGetAlimamaCookieReq, rsp *duobb_proto.Response) error {
+	logrus.Debugf("GetAccountAC req: %v", req)
+	info := &models.DuobbAccountCookie{
+		UserName:    req.User,
+		AlimamaName: req.AlimamaName,
+	}
+	err := models.GetDuobbAccountCookie(info)
+	if err != nil {
+		logrus.Errorf("get duobb account cookie error: %v", err)
+		rsp.Code = duobb_proto.DUOBB_DB_ERROR
+		rsp.Msg = duobb_proto.MSG_DUOBB_DB_ERROR
+		return err
+	}
+	rsp.Code = duobb_proto.DUOBB_RSP_SUCCESS
+	rsp.Data = info
+	
 	return nil
 }
