@@ -206,7 +206,7 @@ func (self *AccountService) GetAllDuobbData(r *http.Request, req *duobb_proto.Ge
 	startTime := 1475251200
 	now := time.Now()
 	hour := now.Hour()
-	data.TodayCommission = int64(hour*1253) + (now.Unix() % 3600 * 3)
+	data.TodayCommission = int64(hour*1357) + (now.Unix() % 3600 * 3)
 	data.AllCommission = (now.Unix()-int64(startTime))/86400*23157 + data.TodayCommission
 
 	rsp.Code = duobb_proto.DUOBB_RSP_SUCCESS

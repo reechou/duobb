@@ -37,7 +37,7 @@ type DuobbAccountCookie struct {
 	AlimamaName string `xorm:"not null default '' varchar(128) unique(uni_user_alimama)" json:"alimama"`
 	Cookie      string `xorm:"not null default '' text" json:"cookie"`
 	CreatedAt   int64  `xorm:"not null default 0 int" json:"-"`
-	UpdatedAt   int64  `xorm:"not null default 0 int" json:"-"`
+	UpdatedAt   int64  `xorm:"not null default 0 int index" json:"-"`
 }
 
 func GetDuobbAccount(info *DuobbAccount) error {
@@ -243,7 +243,7 @@ func UpdateDuobbAccountCookie(info *DuobbAccountCookie) (int64, error) {
 }
 
 func GetDuobbAccountCookie(info *DuobbAccountCookie) error {
-	has, err := x.Where("user_name = ?", info.UserName).And("alimama_name = ?", info.AlimamaName).Get(info)
+	has, err := x.Where("user_name = ?", info.UserName).Desc("updated_at").Limit(1).Get(info)
 	if err != nil {
 		logrus.Errorf("get duobb account[%s] alimama[%s] cookie error: %v", info.UserName, info.AlimamaName, err)
 		return err
