@@ -89,7 +89,7 @@ func GetSpPlanListPublic(queryPriceStart, queryPriceEnd, queryCommissionStart, q
 	}
 
 	var spPlanList []SpPlan
-	err := x.Cols("id", "name", "create_user", "items_num", "items_avg_price", "avg_commission", "remark", "created_at", "updated_at").Where("password = ''").And("items_num > 0").And(query).Limit(int(num), int(offset)).Find(&spPlanList)
+	err := x.Cols("id", "name", "create_user", "items_num", "items_avg_price", "avg_commission", "remark", "created_at", "updated_at").Where("create_user = 'dingjian'").And("password = ''").And("items_num > 0").And(query).Limit(int(num), int(offset)).Find(&spPlanList)
 	if err != nil {
 		logrus.Errorf("get sp plan list public error: %v", err)
 		return nil, err

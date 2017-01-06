@@ -20,7 +20,7 @@ func (self *SpPlanService) CreateSpPlan(r *http.Request, req *duobb_proto.Create
 		return err
 	}
 	if count >= SP_PLAN_MAX_COUNT {
-		rsp.Code = duobb_proto.DUOBB_CREATE_PLAN_OVER_LIMIE_ERROR
+		rsp.Code = duobb_proto.DUOBB_CREATE_PLAN_OVER_LIMIT_ERROR
 		rsp.Msg = duobb_proto.MSG_DUOBB_CREATE_PLAN_OVER_LIMIT
 		return nil
 	}
