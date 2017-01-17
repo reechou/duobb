@@ -261,3 +261,21 @@ func (self *AccountService) GetAccountAC(r *http.Request, req *duobb_proto.Duobb
 	
 	return nil
 }
+
+func (self *AccountService) GetAccountACFromAlimama(r *http.Request, req *duobb_proto.DuobbAccountGetAlimamaCookieReq, rsp *duobb_proto.Response) error {
+	logrus.Debugf("GetAccountACFromAlimama req: %v", req)
+	info := &models.DuobbAccountCookie{
+		AlimamaName: req.AlimamaName,
+	}
+	err := models.GetDuobbAccountCookieFromAlimama(info)
+	if err != nil {
+		logrus.Errorf("get duobb account cookie error: %v", err)
+		rsp.Code = duobb_proto.DUOBB_DB_ERROR
+		rsp.Msg = duobb_proto.MSG_DUOBB_DB_ERROR
+		return err
+	}
+	rsp.Code = duobb_proto.DUOBB_RSP_SUCCESS
+	rsp.Data = info
+	
+	return nil
+}

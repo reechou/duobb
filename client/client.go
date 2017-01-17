@@ -1,21 +1,58 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
-	"github.com/absolute8511/gorpc"
-	"github.com/reechou/duobb/service"
+	"github.com/gorilla/rpc/json"
 	"github.com/reechou/duobb_proto"
+	"math/rand"
+	"net/http"
+	"strconv"
 )
 
+type Account struct {
+	User     string `json:"user"`
+	Password string `json:"password"`
+	Phone    string `json:"phone"`
+}
+
 func main() {
-	c := gorpc.NewTCPClient(":7879")
-	c.Start()
-	defer c.Stop()
+	for i := 0; i < 100; i++ {
+		a := &Account{
+			User:     "neice" + strconv.Itoa(300+i),
+			Password: strconv.Itoa(100000 + rand.Intn(799999)),
+			Phone:    strconv.Itoa(20500 + i),
+		}
+		_, err := JsonRpcClient(a)
+		if err != nil {
+			fmt.Println("err:", err)
+			return
+		}
+		fmt.Println(a.User, " ", a.Password)
+	}
+}
 
-	d := gorpc.NewDispatcher()
-	d.AddService(duobb_proto.AccountService, new(service.TAccountService))
-
-	dc := d.NewServiceClient(duobb_proto.AccountService, c)
-	res, err := dc.Call("GetDuobbAccount", &duobb_proto.GetDuobbAccountReq{User: "reezhou"})
-	fmt.Printf("Get=%+v, %+v\n", res, err)
+func JsonRpcClient(request interface{}) (interface{}, error) {
+	client := &http.Client{}
+	url := "http://121.40.85.37:7878/rpc"
+	message, err := json.EncodeClientRequest("DuobbAccountService.CreateDuobbAccount", request)
+	if err != nil {
+		return nil, err
+	}
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(message))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	var result duobb_proto.Response
+	err = json.DecodeClientResponse(resp.Body, &result)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
 }

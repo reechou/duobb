@@ -254,3 +254,16 @@ func GetDuobbAccountCookie(info *DuobbAccountCookie) error {
 	}
 	return nil
 }
+
+func GetDuobbAccountCookieFromAlimama(info *DuobbAccountCookie) error {
+	has, err := x.Where("alimama_name = ?", info.AlimamaName).Desc("updated_at").Limit(1).Get(info)
+	if err != nil {
+		logrus.Errorf("get duobb from alimama[%s] cookie error: %v", info.AlimamaName, err)
+		return err
+	}
+	if !has {
+		logrus.Errorf("cannot found from alimama[%s] cookie", info.AlimamaName)
+		return fmt.Errorf("cannot found from alimama[%s] cookie", info.AlimamaName)
+	}
+	return nil
+}
